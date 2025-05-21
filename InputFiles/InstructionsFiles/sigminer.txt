@@ -1,0 +1,54 @@
+******************
+**** SIGMINER ****
+******************
+
+De Novo Signature Extraction
+
+Purpose: To discover novel or dataset-specific mutational signatures present in a cohort without relying on prior knowledge.
+Approach: Uses Non-negative Matrix Factorization (NMF) or Bayesian NMF to decompose the mutation catalog matrix into:
+    - Signatures (probability distributions of mutation types)
+    - Exposures (contributions of each signature to each sample)
+Input: A mutation matrix derived from somatic mutation data based on SBS96 types
+Output: A set of de novo extracted signatures, A matrix of signature exposures per sample, Diagnostic plots for signature stability, reconstruction error, and clustering
+------------------------------------------------------------------------------------------------
+Input Parameters:
+
+n_sig - integer, number of signatures to be extracted.
+nrun - integer, giving the number of run to perform for each value in range, nrun set to 30~50 is enough to achieve robust result.
+method - specification of the NMF algorithm. Use 'brunet' as default. Available methods for NMF decompositions are 'brunet', 'lee', 'ls-nmf', 'nsNMF', 'offset'.
+mode - type of mutation matrix to extract, can be one of 'SBS', 'DBS' and 'ID'.
+mut_type - type of mutation one of 'SBS', 'DBS', 'ID' or 'CN'.
+genome_build - genome build 'hg19', 'hg38', 'mm9' or "mm10", if not set, guess it by ref_genome.
+seed - integer, seed to set for reproducibility specification of the starting point or seeding method, which will compute a starting point, usually using data from the target matrix in order to provide a good guess.
+
+For changing setup of input parameters please modify InputFiles/DefaultSettings/SigminerDenovo.txt
+
+Output folder for results - OutputFiles/SigMinerOutput/Denovo
+
+Script> Rtools/sigminer.R method sig_extract()
+
+################################################################################################
+
+Refitting to Known Signatures
+
+Purpose: To quantify the contribution of known mutational signatures (COSMIC v3) within each sample’s mutation profile.
+Approach: Applies non-negative the least squares (NNLS) regression to fit observed mutation profiles using a fixed reference signature matrix.
+Input: Mutation catalog for each sample, predefined reference signature matrix (COSMIC SBS v3)
+Output: A matrix of signature contributions (exposures) per sample, Visual summaries for exposure profiles, similarity comparisons between observed and reconstructed profiles
+------------------------------------------------------------------------------------------------
+Input Parameters:
+
+method - method to solve the minimazation problem. 'NNLS' for non-negative least square; 'QP' for quadratic programming; 'SA' for simulated annealing.
+threshold - numeric vector, a signature with relative exposure lower than (equal is included, i.e. <=) this value will be set to 0 (both absolute exposure and relative exposure). In this case, sum of signature contribution may not equal to 1.
+sig_db - one of signatures catalog versions "legacy", "SBS", "DBS", "ID", "TSB", "SBS_Nik_lab", "RS_Nik_lab", "RS_BRCA560", "RS_USARC", "CNS_USARC", "CNS_TCGA", "CNS_TCGA176", "CNS_PCAWG176", "SBS_hg19", "SBS_hg38", "SBS_mm9", "SBS_mm10", "DBS_hg19", "DBS_hg38", "DBS_mm9", "DBS_mm10", "SBS_Nik_lab_Organ", "RS_Nik_lab_Organ", "latest_SBS_GRCh37", "latest_DBS_GRCh37", "latest_ID_GRCh37", "latest_SBS_GRCh38", "latest_DBS_GRCh38", "latest_SBS_mm9", "latest_DBS_mm9", "latest_SBS_mm10", "latest_DBS_mm10", "latest_SBS_rn6", "latest_DBS_rn6", "latest_CN_GRCh37", "latest_RNA-SBS_GRCh37", "latest_SV_GRCh38".
+db_type - only used when sig_db is enabled. "" for keeping default, "human-exome" for transforming to exome frequency of component, and "human-genome" for transforming to whole genome frequency of component. Currently only works for 'SBS'.
+mode - type of mutation matrix to extract, can be one of 'SBS', 'DBS' and 'ID'.
+mut_type - type of mutation one of 'SBS', 'DBS', 'ID' or 'CN'.
+genome_build - genome build 'hg19', 'hg38', 'mm9' or "mm10", if not set, guess it by ref_genome.
+
+
+For changing setup of input parameters please modify InputFiles/DefaultSettings/SigminerRefitting.txt
+Output folder for results - OutputFiles/SigMinerOutput/Refitting
+
+Script> Rtools/sigminer.R method sig_fit()
+

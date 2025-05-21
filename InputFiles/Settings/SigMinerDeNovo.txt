@@ -1,0 +1,7 @@
+method=brunet,
+nruns=100,
+nsigs=5,
+mode=SBS,
+mut_type=SBS,
+genome_build=hg38,
+seed=12345

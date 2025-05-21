@@ -1,0 +1,98 @@
+***************************
+**** SIGPROFILER TOOLS ****
+***************************
+
+De Novo Signature Extraction
+
+Purpose: To identify mutational signatures present in a set of cancer genomes without prior knowledge of known signatures.
+         This allows researchers to discover both known and novel mutational processes from raw mutation data.
+Approach: Uses non-negative matrix factorization (NMF) on a mutation count matrix.
+          Repeats the extraction process across multiple initializations and NMF ranks to find the optimal number of signatures.
+Input: A mutation matrix derived from somatic mutation data, typically based on SBS96 classification (96 trinucleotide mutation types).
+Output: A set of de novo extracted mutational signatures, matrix of signature exposures (activities) across all samples.
+        Signature stability (silhouette plots, consensus clustering) & Reconstruction error across tested NMF ranks, Sample-wise reconstruction quality
+------------------------------------------------------------------------------------------------
+Input Parameters:
+input_type - A string. Type of input. The type of input should be one of the following:
+            - "vcf": used for vcf format inputs.
+            - "matrix": used for table format inputs using a tab seperated file.
+output - A string. The name of the output folder. The output folder will be generated in the current working directory.
+input_data - A string. Name of the input folder (in case of "vcf" type input) or the input file (in case of "table"  type input). The project file or folder should be inside the current working directory. For the "vcf" type input,the project has to be a folder which will contain the vcf files in vcf format or text formats. The "text"type projects have to be a file.
+reference_genome - A string, optional. The name of the reference genome. The default reference genome is "GRCh37". This parameter is applicable only if the input_type is "vcf".
+opportunity_genome - The build or version of the reference genome for the reference signatures. The default opportunity genome is GRCh37. If the input_type is "vcf", the opportunity_genome automatically matches the input reference genome value. Only the genomes available in COSMIC are supported (GRCh37, GRCh38, mm9, mm10 and rn6). If a different opportunity genome is selected, the default genome GRCh37 will be used.
+context_type - A list of strings, optional. The items in the list defines the mutational contexts to be considered to extract the signatures. The default value is "SBS96,DBS78,ID83".
+exome - Boolean, optional. Defines if the exomes will be extracted. The default value is "False".
+minimum_signature - A positive integer, optional. The minimum number of signatures to be extracted. The default value is 1
+maximum_signatures -  A positive integer, optional. The maximum number of signatures to be extracted. The default value is 10
+nmf_replicates - A positive integer, optional. The number of iteration to be performed to extract each number signature. The default value is 100
+resample - Boolean, optional. Default is True. If True, add poisson noise to samples by resampling.
+seeds - Boolean. Default is "random". If random, then the seeds for resampling will be random for different analysis. If not random, then seeds will be obtained from a given path of a .txt file that contains a list of seed.
+matrix_normalization - A string. Method of normalizing the genome matrix before it is analyzed by NMF. Default is "log2". Other options are "gmm", "100X" or "no_normalization".
+nmf_init - A String. The initialization algorithm for W and H matrix of NMF. Options are 'random', 'nndsvd', 'nndsvda', 'nndsvdar' and 'nndsvd_min'. Default is 'nndsvd_min'.
+precision - A string. Values should be single or double. Default is single.
+min_nmf_iterations - An integer. Value defines the minimum number of iterations to be completed before NMF converges. Default is 2000.
+max_nmf_iterations - An integer. Value defines the maximum number of iterations to be completed before NMF converges. Default is 200000
+nmf_test_conv - An integer. Value definer the number number of iterations to done between checking next convergence.
+nmf_tolerance - A float. Value defines the tolerance to achieve to converge.
+cpu - An integer, optional. The number of processors to be used to extract the signatures. The default value is -1 which will use all available        processors.
+gpu - Boolean, optional. Defines if the GPU resource will used if available. Default is False. If True, the GPU resource will be used in the computation.
+batch_size - An integer. Will be effective only if the GPU is used. Defines the number of NMF replicates to be performed by each CPU during the parallel processing. Default is 1.
+stability - A float. Default is 0.8. The cutoff thresh-hold of the average stability. Solutions with average stabilities below this thresh-hold will not be considered.
+min_stability - A float. Default is 0.2. The cutoff thresh-hold of the minimum stability. Solutions with minimum stabilities below this thresh-hold will not be considered.
+combined_stability - A float. Default is 1.0. The cutoff thresh-hold of the combined stability (sum of average and minimum stability). Solutions with combined stabilities below this thresh-hold will not be considered.
+allow_stability_drop - Boolean, optional. Default is False. Defines if solutions with a drop in stability with respect to the highest stable number of signatures will be considered.
+nnls_add_penalty - Float, optional. Takes any positive float. Default is 0.05. Defines the strong (add) thresh-hold cutoff to be assigned signatures to a sample.
+nnls_remove_penalty - Float, optional. Takes any positive float. Default is 0.01. Defines the weak (remove) thresh-hold cutoff to be assigned signatures to a sample.
+initial_remove_penalty - Float, optional. Takes any positive float. Default is 0.05. Defines the initial weak (remove) thresh-hold cutoff to be assigned COSMIC signatures to a sample.
+refit_denovo_signatures - Boolean, optional. Default is False. If True, then refit the denovo signatures with nnls.
+make_decomposition_plots - Boolean, optional. Defualt is True. If True, Denovo to Cosmic sigantures decompostion plots will be created as a part the results.
+get_all_signature_matrices - A Boolean. If true, the Ws and Hs from all the NMF iterations are generated in the output.
+export_probabilities - A Boolean. Defualt is True. If False, then doesn't create the probability matrix.
+
+For changing setup of input parameters please modify InputFiles/DefaultSettings/SigProfilerDenovo.txt
+
+Output folder for results - OutputFiles/SigProfilerOutput/Denovo
+
+Script> scripts/run.py method sigProfilerExtractor()
+
+################################################################################################
+
+Assignment of Known Mutational Signatures
+
+Purpose: To quantify the contribution of known mutational signatures (COSMIC v3.4) within each sample’s mutation profile.
+Approach: Applies non-negative the least squares (NNLS) regression to fit observed mutation profiles using a fixed reference signature matrix.
+Input: Mutation catalog for each sample, predefined reference signature matrix (COSMIC SBS v3.4)
+Output: A matrix of signature contributions (exposures) per sample, visual summaries for exposure profiles, similarity comparisons between observed and reconstructed profiles
+------------------------------------------------------------------------------------------------
+Input Parameters:
+
+samples - string, path to the input somatic mutations file (if using segmentation file/mutational matrix) or input folder (mutation calling file/s).
+output - string, path to the output folder.
+input_type - string, type of input data. Accepted values:
+    - "vcf": if using mutation calling file/s (VCF, MAF, simple text file) as input
+    - "seg:TYPE": if using a segmentation file as input. Accepted callers for TYPE include "ASCAT", "ASCAT_NGS", "SEQUENZA", "ABSOLUTE", "BATTENBERG", "FACETS", "PURPLE", "TCGA".
+    - "matrix": if using a mutational matrix as input
+context_type - string, context of mutations. Default is "96" for SBS-96 context.
+collapse_to_SBS96 - boolean, if True, collapses the input to SBS96 format.
+cosmic_version - float, version of COSMIC signatures to use. Default is 3.4.
+exome - boolean, if True, adjusts calculations for exome sequencing data.
+genome_build - string, genome build used. Accepted values: "GRCh37", "GRCh38", "mm9", "mm10", "rn6".
+signature_database - string, path to a custom signature database file. If None, uses the default COSMIC database.
+exclude_signature_subgroups - list of strings, subgroups of signatures to exclude from analysis.
+export_probabilities - boolean, if True, exports the probabilities of each signature contributing to each mutation type.
+export_probabilities_per_mutation - boolean, if True, exports the probabilities for each signature per individual mutation.
+make_plots - boolean, if True, generates plots summarizing the assignment results.
+sample_reconstruction_plots - boolean, if True, generates plots comparing observed and reconstructed mutation profiles for each sample.
+verbose - boolean, if True, enables verbose output during processing.
+nnls_add_penalty - Float, optional. Takes any positive float. Default is 0.05. Defines the strong (add) thresh-hold cutoff to be assigned signatures to a sample.
+nnls_remove_penalty - Float, optional. Takes any positive float. Default is 0.01. Defines the weak (remove) thresh-hold cutoff to be assigned signatures to a sample.
+initial_remove_penalty - Float, optional. Takes any positive float. Default is 0.05. Defines the initial weak (remove) thresh-hold cutoff to be assigned COSMIC signatures to a sample.
+
+
+For changing setup of input parameters, please modify SigProfilerRefitting.txt
+
+Output folder for results - SigProfilerOutput/Refitting
+
+Script> scripts/run.py method cosmic_fit()
+
+

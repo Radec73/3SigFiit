@@ -1,0 +1,91 @@
+THIS FILE CONTAINS THE METADATA ABOUT SYSTEM AND RUNTIME
+
+
+-------System Info-------
+Operating System Name: Windows
+Nodename: MSI
+Release: 10
+Version: 10.0.19045
+
+-------Python and Package Versions------- 
+Python Version: 3.9.7
+SigProfilerExtractor Version: 1.1.23
+SigProfilerPlotting Version: 1.3.21
+SigProfilerMatrixGenerator Version: 1.2.25
+SigProfilerAssignment Version: 0.1.4
+Pandas version: 1.5.3
+Numpy version: 1.23.5
+Scipy version: 1.12.0
+Scikit-learn version: 1.4.1.post1
+
+--------------EXECUTION PARAMETERS--------------
+INPUT DATA
+	input_type: vcf
+	output: OutputFiles/SigProfilerOutput/Denovo
+	input_data: InputFiles/ProcessedData
+	reference_genome: GRCh38
+	context_types: SBS96
+	exome: True
+NMF REPLICATES
+	minimum_signatures: 1
+	maximum_signatures: 5
+	NMF_replicates: 100
+NMF ENGINE
+	NMF_init: random
+	precision: single
+	matrix_normalization: gmm
+	resample: True
+	seeds: random
+	min_NMF_iterations: 1,000
+	max_NMF_iterations: 20,000
+	NMF_test_conv: 500
+	NMF_tolerance: 1e-16
+CLUSTERING
+	clustering_distance: cosine
+EXECUTION
+	cpu: 8; Maximum number of CPU is 8
+	gpu: False
+Solution Estimation
+	stability: 0.8
+	min_stability: 0.2
+	combined_stability: 1.0
+	allow_stability_drop: False
+COSMIC MATCH
+	opportunity_genome: GRCh38
+	cosmic_version: 3.4
+	nnls_add_penalty: 0.05
+	nnls_remove_penalty: 0.01
+	initial_remove_penalty: 0.05
+	export_probabilities: True
+	collapse_to_SBS96: True
+
+-------Analysis Progress------- 
+[2025-05-05 13:17:41] Analysis started: 
+
+##################################
+
+[2025-05-05 13:21:19] Analysis started for SBS96. Matrix size [96 rows x 322 columns]
+
+[2025-05-05 13:21:19] Normalization GMM with cutoff value set at 9600
+
+[2025-05-05 13:23:17] SBS96 de novo extraction completed for a total of 1 signatures! 
+Execution time:0:01:57
+
+[2025-05-05 13:26:06] SBS96 de novo extraction completed for a total of 2 signatures! 
+Execution time:0:02:48
+
+[2025-05-05 13:31:17] SBS96 de novo extraction completed for a total of 3 signatures! 
+Execution time:0:05:11
+
+[2025-05-05 13:39:02] SBS96 de novo extraction completed for a total of 4 signatures! 
+Execution time:0:07:44
+
+[2025-05-05 13:54:45] SBS96 de novo extraction completed for a total of 5 signatures! 
+Execution time:0:15:43
+
+[2025-05-05 13:56:00] Analysis ended: 
+
+-------Job Status------- 
+Analysis of mutational signatures completed successfully! 
+Total execution time: 0:38:18 
+Results can be found in:  OutputFiles/SigProfilerOutput/Denovo  folder

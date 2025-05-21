@@ -1,0 +1,20 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+# Ignore environment folders
+venv/
+renv/
+.env/
+.Rhistory
+.RData
+.Rproj.user/
+.Rprofile
+# Ignore Git
+.git/
+.gitignore
+
+test.py
+run_all.py

@@ -1,0 +1,60 @@
+*******************
+** MUTSIGNATURES **
+*******************
+
+De Novo Signature Extraction
+
+Purpose: To uncover novel or context-specific mutational processes without prior assumptions.
+Approach: Uses unsupervised method of Non-negative Matrix Factorization (NMF) to decompose a matrix of mutation counts into:
+- Signatures (patterns)
+- Exposures (how much of each signature is present in each sample)
+Input: Catalog of somatic mutations, categorized as 96 trinucleotide SBS types.
+Output: A set of mutational signatures and their contributions across samples.
+------------------------------------------------------------------------------------------------
+Input Parameters:
+
+num_processesToExtract - integer, number of mutational signatures to extract
+num_totIterations - integer, total number of iterations (bootstrapping)
+num_parallelCores - integer, number of cores to use for the analysis
+thresh_removeWeakMutTypes - numeric, threshold for filtering out under-represented mutation types
+thresh_removeLastPercent - numeric, threshold for removing outlier iteration results
+distanceFunction - string, method for calculating distances. Default method is "cosine"
+num_totReplicates - integer, number of replicates while checking stability
+eps - numeric, close-to-zero positive numeric value for replacing zeros and preventing negative values to appear in the matrix during NMF
+stopconv - integer, max number of stable iterations before termination. Defaults to 20000.
+niter - integer, max number of iterations to run. Defaults to 1000000
+guided - logical, shall clustering be guided to improve aggregation upon bootstrapping
+debug - logical, shall the analysis be run in DEBUG mode
+approach - string, indicating whether to model absolute counts ("counts") or per_mille frequency ("freq"). Defaults to "freq".
+stopRule - string, use the sub-optimal termination rule ("AL") from the WTSI package (actually, iterations won't terminate, so niter will most certainly reached) or our efficient termination rule ("DF"). Defaults to "DF". The "AL" option is implemented for compatibility reasons, but not recommended.
+algorithm - string, algorithm to be used for NMF. Set to "brunet", or "alexa" for using the standard algorithm (Brunet's), otherwise the alternative "chihjen" algorithm will be used.
+logIterations - string indicating if storing and returining all intermediates, or only final results. Defaults to "lite", i.e. returns full output and limited intermediates. Alternatively, set to "full".
+seed - integer, seed to set for reproducibility
+
+For changing setup of input parameters please modify InputFiles/DefaultSettings/MutSignaturesDeNovo.txt
+
+Output folder for results - OutputFiles/MutSignaturesOutput/Denovo
+
+Script> Rtools/mutsignatures.R method decipherMutationalProcesses()
+
+################################################################################################
+
+Refitting to Known Signatures
+
+Purpose: To quantify the contribution of known mutational signatures from COSMIC in each sample.
+Approach: Matches the observed mutational profile of a sample to the closest combination of known signatures using least-squares fitting.
+Input: Mutation catalog and a predefined set of known signatures.
+Output: Signature exposures per sample (how much each known signature contributes).
+------------------------------------------------------------------------------------------------
+Input Parameters:
+
+sig_db - one of signatures catalog versions "legacy", "SBS", "DBS", "ID", "TSB", "SBS_Nik_lab", "RS_Nik_lab", "RS_BRCA560", "RS_USARC", "CNS_USARC", "CNS_TCGA", "CNS_TCGA176", "CNS_PCAWG176", "SBS_hg19", "SBS_hg38", "SBS_mm9", "SBS_mm10", "DBS_hg19", "DBS_hg38", "DBS_mm9", "DBS_mm10", "SBS_Nik_lab_Organ", "RS_Nik_lab_Organ", "latest_SBS_GRCh37", "latest_DBS_GRCh37", "latest_ID_GRCh37", "latest_SBS_GRCh38", "latest_DBS_GRCh38", "latest_SBS_mm9", "latest_DBS_mm9", "latest_SBS_mm10", "latest_DBS_mm10", "latest_SBS_rn6", "latest_DBS_rn6", "latest_CN_GRCh37", "latest_RNA-SBS_GRCh37", "latest_SV_GRCh38".
+
+All other inputs parameters are automatically preset - there is no need for setting them manually for this analysis approach.
+
+For changing setup of input parameters please modify InputFiles/DefaultSettings/MutSignaturesRefitting.txt
+
+Output folder - OutputFiles/MutSignaturesOutput/Refitting
+
+Script> Rtools/mutsignatures.R method resolveMutSignatures()
+

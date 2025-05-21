@@ -1,0 +1,7 @@
+method=NNLS,
+threshold=0.05,
+sig_db=latest_SBS_GRCh38,
+db_type=human-exome,
+mode=SBS,
+mut_type=SBS,
+genome_build=hg38
